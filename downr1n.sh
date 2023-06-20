@@ -669,7 +669,7 @@ if [ true ]; then
         if [ "$os" = "Darwin" ]; then
             hdiutil resize -size 210MB work/checkra1n.dmg
         else
-            "$os"/hfsplus work/checkra1n.dmg grow 210000000 > /dev/null
+            "$dir"/hfsplus work/checkra1n.dmg grow 210000000 > /dev/null
         fi
         python3 -m pyimg4 im4p create -i work/checkra1n.dmg -o work/checkra1n.im4p -f rdsk
         python3 -m pyimg4 img4 create -p work/checkra1n.im4p -m work/IM4M -o work/checkra1n.img4
