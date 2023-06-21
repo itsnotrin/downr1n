@@ -679,7 +679,6 @@ if [ true ]; then
 
         mv -f "other/rdsk/" "other/binpack"
 
-        remote_cmd "mount_apfs /dev/disk0s1s1 /mnt1"
         remote_cmd "/bin/mkdir -p /mnt1/binpack"
         
         remote_cp  other/binpack root@localhost:/mnt1/
