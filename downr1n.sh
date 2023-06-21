@@ -677,8 +677,6 @@ if [ true ]; then
         echo "[*] Copying the binpack"
         unzip -n other/binpack.zip -d "other/."
 
-        mv -f "other/rdsk/" "other/binpack"
-
         remote_cmd "/bin/mkdir -p /mnt1/binpack"
         
         remote_cp  other/binpack root@localhost:/mnt1/
