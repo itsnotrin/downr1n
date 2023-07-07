@@ -370,12 +370,6 @@ _boot() {
     fi
 
 
-    "$dir"/irecovery -f "boot/${deviceid}/checkra1n.img4"
-    sleep 1 
-
-    "$dir"/irecovery -c "ramdisk"
-    sleep 1
-
     "$dir"/irecovery -f "boot/${deviceid}/devicetree.img4"
     sleep 1 
 
@@ -684,7 +678,7 @@ if [ true ]; then
         
         echo "[*] Adding the rootdev=md0 argument to the iBoot"
 
-        "$dir"/iBoot64Patcher work/iBEC.dec work/iBEC.patched -b "-v rootdev=md0 wdt=-1 debug=0x2014e `if [ "$cpid" = '0x8960' ] || [ "$cpid" = '0x7000' ] || [ "$cpid" = '0x7001' ]; then echo "-restore"; fi`" -n "$(if [ "$local" = "1" ]; then echo "-l"; elif [ "$fsboot" = "1" ]; then echo "-f"; fi)"
+        "$dir"/iBoot64Patcher work/iBEC.dec work/iBEC.patched -b "serial=3 rootdev=md0 wdt=-1 debug=0x2014e `if [ "$cpid" = '0x8960' ] || [ "$cpid" = '0x7000' ] || [ "$cpid" = '0x7001' ]; then echo "-restore"; fi`" -n "$(if [ "$local" = "1" ]; then echo "-l"; elif [ "$fsboot" = "1" ]; then echo "-f"; fi)"
         "$dir"/img4 -i work/iBEC.patched -o work/iBEC.img4 -M work/IM4M -A -T "$(if [[ "$cpid" == *"0x801"* ]]; then echo "ibss"; else echo "ibec"; fi)"
         
         echo "[*] Saving the iBoot modified"
