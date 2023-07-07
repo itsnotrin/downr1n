@@ -658,6 +658,39 @@ if [ true ]; then
     echo "Dumpped SHSH"
 
     if [ "$jailbreak" = "1" ]; then
+        echo "patching kernel" # this will send and patch the kernel
+        cp "$extractedIpsw$(awk "/""${model}""/{x=1}x&&/kernelcache.release/{print;exit}" work/BuildManifest.plist | grep '<string>' |cut -d\> -f2 |cut -d\< -f1)" "work/"
+        cp  work/"$(awk "/""${model}""/{x=1}x&&/kernelcache.release/{print;exit}" work/BuildManifest.plist | grep '<string>' |cut -d\> -f2 |cut -d\< -f1)" work/kernelcache 
+        
+        if [[ "$deviceid" == "iPhone8"* ]] || [[ "$deviceid" == "iPad6"* ]] || [[ "$deviceid" == *'iPad5'* ]]; then
+            python3 -m pyimg4 im4p extract -i work/kernelcache -o work/kcache.raw --extra work/kpp.bin
+        else
+            python3 -m pyimg4 im4p extract -i work/kernelcache -o work/kcache.raw
+        fi
+        
+        remote_cp work/kcache.raw root@localhost:/mnt6/$active/System/Library/Caches/com.apple.kernelcaches/kcache.raw
+        remote_cp boot/"${deviceid}"/kernelcache.img4 "root@localhost:/mnt6/$active/System/Library/Caches/com.apple.kernelcaches/kernelcache"
+        remote_cp binaries/Kernel15Patcher.ios root@localhost:/mnt1/private/var/root/Kernel15Patcher.ios
+        remote_cmd "/usr/sbin/chown 0 /mnt1/private/var/root/Kernel15Patcher.ios"
+        remote_cmd "/bin/chmod 755 /mnt1/private/var/root/Kernel15Patcher.ios"
+        sleep 1
+        if [ ! $(remote_cmd "/mnt1/private/var/root/Kernel15Patcher.ios /mnt6/$active/System/Library/Caches/com.apple.kernelcaches/kcache.raw /mnt6/$active/System/Library/Caches/com.apple.kernelcaches/kcache.patched") ]; then
+            echo "you have the kernelpath already installed "
+        fi
+        sleep 2
+        remote_cp root@localhost:/mnt6/"$active"/System/Library/Caches/com.apple.kernelcaches/kcache.patched work/ # that will return the kernelpatcher in order to be patched again and boot with it 
+        "$dir"/Kernel64Patcher work/kcache.patched work/kcache.patchedB -e -b
+
+        if [[ "$deviceid" == *'iPhone8'* ]] || [[ "$deviceid" == *'iPad6'* ]] || [[ "$deviceid" == *'iPad5'* ]]; then
+            python3 -m pyimg4 im4p create -i work/kcache.patchedB -o work/kcache.im4p -f rkrn --extra work/kpp.bin --lzss
+        else
+            python3 -m pyimg4 im4p create -i work/kcache.patchedB -o work/kcache.im4p -f rkrn --lzss
+        fi
+
+        remote_cp work/kcache.im4p root@localhost:/mnt6/"$active"/System/Library/Caches/com.apple.kernelcaches/
+        remote_cmd "img4 -i /mnt6/$active/System/Library/Caches/com.apple.kernelcaches/kcache.im4p -o /mnt6/$active/System/Library/Caches/com.apple.kernelcaches/kernelcache -M /mnt6/$active/System/Library/Caches/apticket.der"
+        remote_cmd "rm -f /mnt6/$active/System/Library/Caches/com.apple.kernelcaches/kcache.raw /mnt6/$active/System/Library/Caches/com.apple.kernelcaches/kcache.patched /mnt6/$active/System/Library/Caches/com.apple.kernelcaches/kcache.im4p"
+
         echo "[*] Preparing the rdsk of checkra1n"
         cp other/checkra1n.dmg work/.
         if [ "$os" = "Darwin" ]; then
@@ -678,7 +711,7 @@ if [ true ]; then
         
         echo "[*] Adding the rootdev=md0 argument to the iBoot"
 
-        "$dir"/iBoot64Patcher work/iBEC.dec work/iBEC.patched -b "serial=3 rootdev=md0 wdt=-1 debug=0x2014e `if [ "$cpid" = '0x8960' ] || [ "$cpid" = '0x7000' ] || [ "$cpid" = '0x7001' ]; then echo "-restore"; fi`" -n "$(if [ "$local" = "1" ]; then echo "-l"; elif [ "$fsboot" = "1" ]; then echo "-f"; fi)"
+        "$dir"/iBoot64Patcher work/iBEC.dec work/iBEC.patched -b "-v rootdev=md0 wdt=-1 debug=0x2014e `if [ "$cpid" = '0x8960' ] || [ "$cpid" = '0x7000' ] || [ "$cpid" = '0x7001' ]; then echo "-restore"; fi`" -n "$(if [ "$local" = "1" ]; then echo "-l"; elif [ "$fsboot" = "1" ]; then echo "-f"; fi)"
         "$dir"/img4 -i work/iBEC.patched -o work/iBEC.img4 -M work/IM4M -A -T "$(if [[ "$cpid" == *"0x801"* ]]; then echo "ibss"; else echo "ibec"; fi)"
         
         echo "[*] Saving the iBoot modified"
