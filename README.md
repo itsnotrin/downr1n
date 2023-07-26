@@ -2,7 +2,6 @@
 
 A MOD VERSION OF DOWNR1N TO TEST CHECKRA1N ON IT, CURRENTLY NOT WORKING BECAUSE WE NEED THE KERN SLIDE AND KERNBASE WHICH ARE GOTTEN WHEN CHECKRA1N IS BOOTING WITH THE KPF. IF SOMEONE WANT TO HELP TO GET CHECKRA1N WORKING ON THIS, IT WOULD BE AMAZING :)
 
-downgrades are shit tbh xd, I mean dualboot is much better option if you have the storage needed.
 # Usage
 
 download the ipsw and put it into ipsw/ directory
